@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Page</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 50px 0; /* Space from the top and bottom */
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .form-container {
+            flex: 1;
+            padding: 20px;
+            background: white;
+        }
+        .image-container {
+        flex: 1; /* Takes up 1 fraction of the available space */
+        display: flex;
+        justify-content: center;
+        align-items: stretch; /* Make sure the container stretches in height */
+        background: #ddd; /* Different background to distinguish the area */
+        padding: 20px; /* Add padding around the image */
+        }
+        img {
+            height: 100%; /* Set image height to fill the container */
+            width: auto; /* Set image width to auto to maintain aspect ratio */
+            object-fit: cover; /* Cover the container with the image without losing aspect ratio */
+            max-width: none; /* Override max-width to allow the image to scale up */
+        }
+    </style>
+</head>
+<body>
+    <form action="/search" method="post" onsubmit="updateImage()">
+    <div class="container">
+        <div class="form-container">
+            <h1>Search Page</h1>
+            <input type="text" name="query" placeholder="Enter your query">
+            <button type="submit">Search</button>
+            <h2>Select Model:</h2>
+            <label>
+                <input type="radio" id="boolean_model" name="model" value="boolean_model" checked>
+                Boolean Model
+            </label>
+            <br>
+            <label>
+                <input type="radio" id="vector_model" name="model" value="vector_model">
+                Vector Model
+            </label>
+            <br>
+            <label>
+                <input type="radio" id="ai_model" name="model" value="ai_model">
+                AI Model
+            </label>
+            <h2>Select Schema:</h2>
+            <label>
+                <input type="radio" id="title_schema" name="schema" value="title" checked>
+                Title
+            </label>
+            <br>
+            <label>
+                <input type="radio" id="keywords_schema" name="schema" value="keywords">
+                Keywords
+            </label>
+            <br>
+            <label>
+                <input type="radio" id="abstract_schema" name="schema" value="abstract">
+                Abstract
+            </label>
+            <h2>N-Gram:</h2>
+            <select name="ngram">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+            </select>
+        </div>
+        <div class="image-container">
+            <img id="wordcloud_image" src="{{ url_for('static', filename='title_wordcloud.png') }}" alt="Word Cloud Image">
+        </div>
+    </div>
+    </form>
+
+    <script>
+        document.querySelectorAll('input[name="schema"]').forEach(radio => {
+            radio.addEventListener('change', updateImage);
+        });
+
+        function updateImage() {
+            var selectedSchema = document.querySelector('input[name="schema"]:checked').value;
+            var image = document.getElementById('wordcloud_image');
+            var imageUrl = "{{ url_for('static', filename='') }}" + selectedSchema + '_wordcloud.png';
+            image.src = imageUrl + '?' + new Date().getTime(); // Use the timestamp to force the image to refresh
+        }
+    </script>
+</body>
+</html>
