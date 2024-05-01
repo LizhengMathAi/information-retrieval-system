@@ -19,8 +19,11 @@ This Information Retrieval System is a Flask-based web application designed for 
 ## Installation
 
 ### Prerequisites
-- Python 3.6+
+- Python 3.10.12
 - Flask
+- Java 8
+- Spark 3.1.1
+- Hadoop 3.2
 - PySpark
 - NLTK
 
