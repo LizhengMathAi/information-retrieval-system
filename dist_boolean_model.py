@@ -9,13 +9,13 @@ from pyspark.sql import SparkSession
 spark = SparkSession.builder.master("local[*]").getOrCreate()
 spark.conf.set("spark.sql.repl.eagerEval.enabled", True) # Property used to format output tables better
 
-
 import re
 import pyspark.sql.functions as F
 import nltk
 from nltk.corpus import stopwords
 import numpy as np
 
+import argparse
 
 
 def string_to_ngram_set(string, n):
@@ -84,7 +84,6 @@ def inner_similarity(set1, set2):
 
 def compute_ranking(df, query, schema: str, n:str, threshold=50):
     query_ngram_set = string_to_ngram_set(query, n)
-    print(f"n={n}: {query_ngram_set}")
     # Define the example n-gram set to compare with each n-gram set in ngram_sets
     query_ngram_set_broadcast = spark.sparkContext.broadcast(query_ngram_set)
 
@@ -131,32 +130,22 @@ class DistBooleanModel:
 
 
 if __name__ == "__main__":
+    # Setup argparse
+    parser = argparse.ArgumentParser(description='Run PySpark text processing.')
+    parser.add_argument('--path', default="/home/zhengli/Documents/CSCI-626/project/src/Content.csv", type=str, help='The path of `Content.csv`.')
+    parser.add_argument('--query', default="artificial neural networks;\tdiffusion model;knowledge;\tby Large Language Model", type=str, help='The query string to process.')
+    parser.add_argument('--schema', default="abstract", type=str, help='The schema to searching.')
+    parser.add_argument('--n', default=2, type=int, help='The size of n-grams.')
+    args = parser.parse_args()
 
-
-    df = spark.read.csv("src/Content.csv", header=True, inferSchema=True, sep=';')
-    df.show(5, truncate=True, vertical=True)
-    query = "artificial neural networks;\tdiffusion model;knowledge;\tby Large Language Model"
-    n = 2
-
-    # query = "Diffusion Models for Constrained Domains"
-    # query_ngram_set = string_to_ngram_set(query, n)
-    # print(f"N-Gram={n}: {query_ngram_set}")
+    # Load DataFrame
+    df = spark.read.csv(args.path, header=True, inferSchema=True, sep=';')
+    
+    # Use arguments from argparse
+    query_ngram_set = string_to_ngram_set(args.query, args.n)
+    # print(f"N-Gram={args.n}: {query_ngram_set}")
     # print("Ranking:")
-    # paper_ids, titles, keywords, abstracts = compute_ranking(df, query, "title", n)
-    # for t, k in zip(titles, keywords):
-    #     print('{}\n[{}]\n'.format(t, k))
+    paper_ids, titles, keywords, abstracts = compute_ranking(df, args.query, args.schema, args.n)
+    for idx, t, k in zip(paper_ids, titles, keywords):
+        print('[{}]\n{}\n[{}]\n'.format(idx, t, k))
 
-    # query_ngram_set = string_to_ngram_set(query, n)
-    # print(f"N-Gram={n}: {query_ngram_set}")
-    # print("Ranking:")
-    # paper_ids, titles, keywords, abstracts = compute_ranking(df, query, "keywords", n)
-    # for t, k in zip(titles, keywords):
-    #     print('{}\n[{}]\n'.format(t, k))
-
-    query = "Denoising diffusion models are a novel class of generative algorithms that achieve state-of-the-art performance across a range of domains, including image generation and text-to-image tasks. Building on this success, diffusion models have recently been extended to the Riemannian manifold setting, broadening their applicability to a range of problems from the natural and engineering sciences. However, these Riemannian diffusion models are built on the assumption that their forward and backward processes are well-defined for all times, preventing them from being applied to an important set of tasks that consider manifolds defined via a set of inequality constraints. In this work, we introduce a principled framework to bridge this gap. We present two distinct noising processes based on (i) the logarithmic barrier metric and (ii) the reflected Brownian motion induced by the constraints. As existing diffusion model techniques cannot be applied in this setting, we proceed to derive new tools to define such models in our framework. We then empirically demonstrate the scalability and flexibility of our methods on a number of synthetic and real-world tasks, including applications from robotics and protein design."
-    query_ngram_set = string_to_ngram_set(query, n)
-    print(f"N-Gram={n}: {query_ngram_set}")
-    print("Ranking:")
-    paper_ids, titles, keywords, abstracts = compute_ranking(df, query, "abstract", n)
-    for t, k in zip(titles, keywords):
-        print('{}\n[{}]\n'.format(t, k))
