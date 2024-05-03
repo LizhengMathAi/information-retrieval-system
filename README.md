@@ -3,7 +3,9 @@
 ## Overview
 This Information Retrieval System is a Flask-based web application designed for academic paper searches. It allows users to query a dataset of papers using different search models: Boolean, Vector, and AI-based models. The application supports searching by title, keywords, or abstracts and uses n-gram analysis to enhance the search capabilities.
 
-![Screenshot](https://github.com/LizhengMathAi/information-retrieval-system/blob/main/static/Screenshot.png)
+![index](https://github.com/LizhengMathAi/information-retrieval-system/blob/main/static/index.png)
+![search](https://github.com/LizhengMathAi/information-retrieval-system/blob/main/static/search.png)
+![details](https://github.com/LizhengMathAi/information-retrieval-system/blob/main/static/details.png)
 
 ## Features
 - **Multiple Search Models**: Users can choose among Boolean, Vector, or AI-based models for querying the dataset.
